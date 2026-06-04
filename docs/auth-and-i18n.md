@@ -13,6 +13,7 @@ Copy `.env.local.example` to `.env.local` and fill in:
 | `NEXT_PUBLIC_SUPABASE_URL` | From Supabase Dashboard → Settings → API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | From Supabase Dashboard → Settings → API |
 | `NEXT_PUBLIC_APP_URL` | Public base URL — required in production (e.g. `https://your-domain.com`). Defaults to `http://localhost:3000` locally. |
+| `NEXT_PUBLIC_COUNTDOWN_TARGET` | RESERVED / unused. The `/countdown` page currently loops a fixed 99-day countdown (see below); this var is a placeholder for wiring a real target date later. |
 
 ---
 
@@ -51,7 +52,9 @@ Next.js 16 uses `proxy.ts` (not `middleware.ts`) as the request interceptor. `li
 - Unauthenticated request to a protected route → redirect to `/login`.
 - Authenticated user hitting `/login` → redirect to `/`.
 
-Public paths (no auth required): `/login`, `/auth/*`.
+Public paths (no auth required): `/login`, `/auth/*`, `/countdown`.
+
+**Font asset fix:** The `proxy.ts` matcher now excludes font extensions (`woff|woff2|ttf|otf|eot`) in addition to images. Previously, requests to self-hosted fonts under `/fonts/` would be intercepted and 307-redirected to `/login` for unauthenticated users, breaking font loading on public pages. The regex exclusion pattern in `proxy.ts` config prevents this.
 
 ---
 
@@ -77,7 +80,7 @@ import { setLocale } from '@/app/actions/locale';
 
 | File | Purpose |
 |---|---|
-| `proxy.ts` | Next.js 16 request interceptor — session refresh + auth redirects |
+| `proxy.ts` | Next.js 16 request interceptor — session refresh + auth redirects; matcher excludes images and fonts |
 | `lib/supabase/server.ts` | Supabase client for Server Components / Route Handlers |
 | `lib/supabase/middleware.ts` | Session refresh logic + public path guard |
 | `app/actions/auth.ts` | `signInWithGoogle`, `signOut` server actions |

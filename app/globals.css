@@ -30,3 +30,12 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* DSEG7-Classic — open-source LED/7-segment font for the countdown digits */
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url("/fonts/DSEG7Classic-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
