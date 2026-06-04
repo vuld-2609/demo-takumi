@@ -1,0 +1,1 @@
+- [Login UI build](project-login-ui.md) — Login screen UI built (4 files); orchestrator seams left for Supabase + dropdown + i18n

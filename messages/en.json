@@ -1,0 +1,10 @@
+{
+  "login": {
+    "welcomeLine1": "Begin your journey with SAA 2025.",
+    "welcomeLine2": "Sign in to explore!",
+    "loginButton": "LOGIN With Google",
+    "footer": "Copyright © 2025 Sun*",
+    "langName": "EN",
+    "loginError": "Sign-in failed. Please try again."
+  }
+}
