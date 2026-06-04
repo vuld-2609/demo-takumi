@@ -7,7 +7,7 @@
 #### Added
 - **Countdown / Prelaunch page** (`/countdown` — public, no auth required).
   - Full-screen decorative background with dark gradient overlay.
-  - Client-side countdown timer (DAYS / HOURS / MINUTES, two-digit, days capped at 99, no seconds) reading `NEXT_PUBLIC_COUNTDOWN_TARGET` (ISO 8601); falls back to `2026-12-31T18:00:00+07:00` if unset or invalid.
+  - Client-side countdown timer (DAYS / HOURS / MINUTES, two-digit, days capped at 99, no seconds). Self-decrementing: starts at 99 days and ticks down one minute per 60s interval, looping back to 99 days at zero. `NEXT_PUBLIC_COUNTDOWN_TARGET` is reserved for a future real-date mode (not currently used).
   - Self-hosted DSEG7-Classic LED font (`public/fonts/DSEG7Classic-Bold.ttf`, `@font-face` in `globals.css`) for digit display.
   - next-intl `countdown.title` key added (vi/en).
   - Files: `app/countdown/page.tsx`, `app/countdown/_components/countdown-timer.tsx`.

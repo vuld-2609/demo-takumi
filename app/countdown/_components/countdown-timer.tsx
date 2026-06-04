@@ -10,25 +10,14 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-// Fallback if NEXT_PUBLIC_COUNTDOWN_TARGET is unset/invalid (set the real
-// event date via the env var). Kept in the future so the demo isn't all-zeros.
-const FALLBACK_TARGET = "2026-12-31T18:00:00+07:00";
-
-interface TimeParts {
-  days: number;
-  hours: number;
-  minutes: number;
-}
-
-/** Remaining whole days/hours/minutes until `targetMs`, clamped to >= 0. */
-function getRemaining(targetMs: number, nowMs: number): TimeParts {
-  const diff = Math.max(0, targetMs - nowMs);
-  return {
-    days: Math.floor(diff / 86_400_000),
-    hours: Math.floor(diff / 3_600_000) % 24,
-    minutes: Math.floor(diff / 60_000) % 60,
-  };
-}
+// The countdown starts at 99 days and ticks DOWN one minute per interval.
+// When it reaches 00d 00h 00m it loops back to 99 days and continues.
+// (Temporary behaviour — to count toward a real event date instead, derive the
+//  initial minutes from `(targetDate - now) / 60000` and stop the loop reset.)
+const MINUTES_PER_DAY = 24 * 60;
+const START_DAYS = 99;
+const START_MINUTES = START_DAYS * MINUTES_PER_DAY; // 142,560
+const TICK_MS = 60_000; // advance one minute per tick
 
 /** Pad to two digits; invalid/negative → "00", overflow (>99) → "99"
  *  (the design has only two digit boxes per unit, so days cap at 99). */
@@ -40,23 +29,24 @@ function twoDigits(value: number): string {
 export default function CountdownTimer() {
   const t = useTranslations("countdown");
 
-  const targetMs = (() => {
-    const raw = process.env.NEXT_PUBLIC_COUNTDOWN_TARGET || FALLBACK_TARGET;
-    const parsed = Date.parse(raw);
-    return Number.isNaN(parsed) ? Date.parse(FALLBACK_TARGET) : parsed;
-  })();
-
-  // null until mounted to avoid SSR/client hydration mismatch (Date differs).
-  const [remaining, setRemaining] = useState<TimeParts | null>(null);
+  // Whole minutes remaining. Deterministic initial value (no Date) → server and
+  // client render the same first frame, so there is no hydration mismatch.
+  const [minutesLeft, setMinutesLeft] = useState(START_MINUTES);
 
   useEffect(() => {
-    const tick = () => setRemaining(getRemaining(targetMs, Date.now()));
-    tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(() => {
+      // Decrement one minute; once it hits zero, loop back to 99 days.
+      setMinutesLeft((prev) => (prev <= 0 ? START_MINUTES : prev - 1));
+    }, TICK_MS);
     return () => clearInterval(id);
-  }, [targetMs]);
+  }, []);
 
-  const parts = remaining ?? { days: 0, hours: 0, minutes: 0 };
+  // Derive the display units from the single source of truth (minutesLeft).
+  const parts = {
+    days: Math.floor(minutesLeft / MINUTES_PER_DAY),
+    hours: Math.floor((minutesLeft % MINUTES_PER_DAY) / 60),
+    minutes: minutesLeft % 60,
+  };
 
   return (
     <section

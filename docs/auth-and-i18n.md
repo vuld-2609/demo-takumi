@@ -13,7 +13,7 @@ Copy `.env.local.example` to `.env.local` and fill in:
 | `NEXT_PUBLIC_SUPABASE_URL` | From Supabase Dashboard → Settings → API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | From Supabase Dashboard → Settings → API |
 | `NEXT_PUBLIC_APP_URL` | Public base URL — required in production (e.g. `https://your-domain.com`). Defaults to `http://localhost:3000` locally. |
-| `NEXT_PUBLIC_COUNTDOWN_TARGET` | ISO 8601 datetime for the countdown target (e.g. `2026-12-31T18:00:00+07:00`). Falls back to `2026-12-31T18:00:00+07:00` if unset or invalid. |
+| `NEXT_PUBLIC_COUNTDOWN_TARGET` | RESERVED / unused. The `/countdown` page currently loops a fixed 99-day countdown (see below); this var is a placeholder for wiring a real target date later. |
 
 ---
 
