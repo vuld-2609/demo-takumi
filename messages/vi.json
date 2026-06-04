@@ -6,5 +6,8 @@
     "footer": "Bản quyền thuộc về Sun* © 2025",
     "langName": "VN",
     "loginError": "Đăng nhập thất bại. Vui lòng thử lại."
+  },
+  "countdown": {
+    "title": "Sự kiện sẽ bắt đầu sau"
   }
 }
