@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# playwright mcp output (local screenshots / snapshots)
+/.playwright-mcp/
+
 # agent tooling (Takumi Agent Kit — local, not application code)
 .claude/
 release-manifest.json

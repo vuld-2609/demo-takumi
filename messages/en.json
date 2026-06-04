@@ -9,5 +9,66 @@
   },
   "countdown": {
     "title": "The event starts in"
+  },
+  "home": {
+    "nav": {
+      "about": "About SAA 2025",
+      "awards": "Awards Information",
+      "kudos": "Sun* Kudos",
+      "standards": "General Standards"
+    },
+    "header": {
+      "login": "Sign in",
+      "notifications": "Notifications",
+      "account": "Account",
+      "profile": "Profile",
+      "signOut": "Sign out",
+      "adminDashboard": "Admin Dashboard",
+      "noNotifications": "No notifications yet."
+    },
+    "hero": {
+      "comingSoon": "Coming soon",
+      "ctaAwards": "ABOUT AWARDS",
+      "ctaKudos": "ABOUT KUDOS",
+      "timeLabel": "Time:",
+      "timeValue": "26/12/2025",
+      "venueLabel": "Venue:",
+      "venueValue": "Âu Cơ Art Center",
+      "note": "Live broadcast via Livestream"
+    },
+    "content": {
+      "quote": "“A tree with deep roots fears no storm”",
+      "quoteSource": "(English proverb)",
+      "p1": "Facing the storm-like change of the AI era and the ever-rising demands of customers, Sun* has chosen a strategy of diversifying capabilities — not only striving to become the elite in its field, but aiming for a higher goal where every Sunner is a “problem-solver”, an expert in resolving every issue and finding answers for every challenge of projects, customers and society.\nInspired by this diversity of capability, the agility to grow and the spirit of digging deep to break through in the AI era, “Root Further” was chosen as the official theme of the Sun* Annual Awards 2025.\nBeyond its surface meaning, “Root Further” is our journey of reaching ever farther, rooting ever deeper, touching hidden “geological” layers to keep surviving, rising and nurturing the burning passion of Sun* people to create value. Like roots relentlessly driving into the earth, weaving through every layer of “sediment” to absorb the finest essence, Sun* people are also “absorbing” nutrients from the era and the challenges of the market to renew themselves every day, expand their capabilities and strongly “take root” in the AI era — an entirely new, complex and unpredictable layer, yet one that holds boundless potential and opportunity.",
+      "p2": "Before the storm, only trees with strong enough roots can stand firm. An organization of individuals confident in their diverse capabilities, ready to create and embrace challenges and to master change, is one that not only stands firm against turbulence but also harnesses every advantage to conquer the challenges of the times. More than just the name of a new chapter in the organization's journey, “Root Further” is also an encouragement for each of us to dare to believe in ourselves, dare to dig deep, unlock every potential, break every limit and become the most versatile and excellent version of ourselves. Because in the AI era, diverse capability and harnessing the power of the times are the prerequisites for endurance.\nNo one knows in advance how many hidden “geological” layers lie deep within the “earth” of the modern technology industry and market. We only know that once “Root Further” has become our rooted spirit, we will not be afraid, but ever more eager before any uncharted territory on the road ahead. For we always believe that within those boundless realms lie countless wonders and opportunities to rise, waiting for us."
+    },
+    "awards": {
+      "caption": "Sun* annual awards 2025",
+      "title": "Awards System",
+      "detail": "Details",
+      "items": {
+        "topTalent": "Honoring the top individuals excelling in every aspect",
+        "topProject": "Honoring the top projects excelling in every aspect, with outstanding revenue",
+        "topProjectLeader": "Honoring the leaders who inspire and drive breakthrough projects",
+        "bestManager": "Honoring managers with strong management skills who lead their teams",
+        "signatureCreator": "Honoring managers with strong management skills who lead their teams",
+        "mvp": "Honoring managers with strong management skills who lead their teams"
+      }
+    },
+    "kudos": {
+      "label": "Recognition movement",
+      "title": "Sun* Kudos",
+      "bodyHeading": "WHAT'S NEW IN SAA 2025",
+      "body": "A movement to recognize and thank colleagues — held for the very first time for all Sunners. Launching in November 2025, it encourages Sun* people to share words of recognition and thanks to colleagues on the system announced by the organizers. This will be material for the Heads Council to reference when selecting award recipients.",
+      "detail": "Details"
+    },
+    "widget": {
+      "label": "Quick actions",
+      "writeKudos": "Write Kudos",
+      "rules": "SAA Rules"
+    },
+    "footer": {
+      "copyright": "Copyright © 2025 Sun*"
+    }
   }
 }
