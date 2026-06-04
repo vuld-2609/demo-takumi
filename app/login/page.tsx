@@ -24,6 +24,23 @@ export default async function LoginPage({
       style={{ backgroundColor: "#00101A" }}
     >
       {/*
+       * Decorative background artwork (organic "root" key visual).
+       * Drop the exported asset at public/login/bg-keyvisual.png and it appears
+       * here automatically; until then the dark base + gradients render cleanly.
+       * CSS background (not <img>) so a missing file degrades silently.
+       */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('/login/bg-keyvisual.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center right",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
+
+      {/*
        * Gradient overlay 1 — full-frame, darkens LEFT for text readability.
        * linear-gradient(90deg, #00101A 0%, #00101A 25.41%, rgba(0,16,26,0) 100%)
        */}

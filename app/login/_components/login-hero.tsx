@@ -128,11 +128,10 @@ export default function LoginHero({
           <span
             style={{
               fontWeight: 700,
-              fontSize: "14px",
-              lineHeight: "1",
+              fontSize: "22px",
+              lineHeight: "28px",
               color: "#00101A",
-              flex: 1,
-              textAlign: "left",
+              textAlign: "center",
               whiteSpace: "nowrap",
             }}
           >

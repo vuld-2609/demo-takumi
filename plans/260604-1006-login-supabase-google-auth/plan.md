@@ -28,7 +28,8 @@ See [clarifications.md](./clarifications.md). Key: scaffold Supabase (no project
 - [x] Reviewer DONE_WITH_CONCERNS → H1, M1, M3/M4 fixed; L1-L4, M2/M5 deferred as low-priority
 
 ## Delivered / Limitations
-- Decorative background artwork omitted (non-exportable MoMorph raster)
+- Decorative background artwork: not exportable via MoMorph MCP (get_figma_image 500s); user supplied `public/login/bg-keyvisual.png` (1440×1022), wired as a CSS background layer under the gradients
+- Login button label corrected to 22px/28px Montserrat 700 (was 14px) with icon 8px after text
 - Unit test harness not set up (project has no test framework; verified via build/typecheck/lint/visual)
 - Validation screenshots in `reports/validation/`
 
