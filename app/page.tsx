@@ -15,9 +15,9 @@ const montserrat = Montserrat({
 });
 
 /**
- * Homepage SAA (public). Keyvisual hero backdrop + fixed header, stacked
- * content sections, floating widget, and footer. Header controls adapt to the
- * visitor's auth state.
+ * Homepage SAA (authenticated only — gated by proxy/middleware; unauthenticated
+ * visitors are redirected to /login). Keyvisual hero backdrop + fixed header,
+ * stacked content sections, floating widget, and footer.
  */
 export default function Home() {
   return (

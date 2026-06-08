@@ -8,9 +8,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const PUBLIC_PATHS = ["/login", "/auth", "/countdown"];
 
 function isPublicPath(pathname: string): boolean {
-  // Homepage is public (shows public content to everyone; header controls
-  // adapt to auth state). Matched exactly so sub-routes stay protected.
-  if (pathname === "/") return true;
+  // Homepage ("/") now requires authentication — unauthenticated visitors are
+  // redirected to /login. Only the paths in PUBLIC_PATHS stay open.
   return PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
