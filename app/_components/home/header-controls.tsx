@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { signOut } from "@/app/actions/auth";
+import { UserIcon, GridIcon, ChevronRightIcon } from "./icons";
 
 /**
  * Authenticated header controls (spec A1.6/A1.8): notification bell + panel and
@@ -77,19 +78,36 @@ export default function HeaderControls({
         {openMenu === "account" && (
           <div
             role="menu"
-            className="absolute right-0 top-[calc(100%+8px)] flex w-56 flex-col overflow-hidden rounded-lg border border-[#998C5F] bg-[#00070C] py-2 text-sm text-white"
+            className="absolute right-0 top-[calc(100%+8px)] flex w-56 flex-col gap-1 overflow-hidden rounded-lg border border-[#998C5F] bg-[#00070C] p-2 text-sm text-white"
           >
-            <Link href="/profile" role="menuitem" className="px-5 py-3 transition-colors hover:bg-[#FFEA9E]/10">
+            {/* Profile — active item: raised gold-tinted bg + glow */}
+            <Link
+              href="/profile"
+              role="menuitem"
+              className="flex items-center justify-between rounded-md bg-[#FFEA9E]/10 px-4 py-3 font-semibold text-[#FFEA9E] transition-colors hover:bg-[#FFEA9E]/15"
+              style={{ textShadow: "0 0 6px #FAE287" }}
+            >
               {t("profile")}
+              <UserIcon size={18} />
             </Link>
             {isAdmin && (
-              <Link href="/admin" role="menuitem" className="px-5 py-3 transition-colors hover:bg-[#FFEA9E]/10">
+              <Link
+                href="/admin"
+                role="menuitem"
+                className="flex items-center justify-between rounded-md px-4 py-3 transition-colors hover:bg-[#FFEA9E]/10"
+              >
                 {t("adminDashboard")}
+                <GridIcon size={18} />
               </Link>
             )}
             <form action={signOut}>
-              <button type="submit" role="menuitem" className="w-full px-5 py-3 text-left transition-colors hover:bg-[#FFEA9E]/10">
+              <button
+                type="submit"
+                role="menuitem"
+                className="flex w-full items-center justify-between rounded-md px-4 py-3 text-left transition-colors hover:bg-[#FFEA9E]/10"
+              >
                 {t("signOut")}
+                <ChevronRightIcon size={18} />
               </button>
             </form>
           </div>

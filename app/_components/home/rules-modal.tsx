@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -23,9 +23,6 @@ export default function RulesModal({
 }) {
   const t = useTranslations("home.rules");
   const panelRef = useRef<HTMLDivElement>(null);
-  // Portals require a DOM target — only available after mount on the client.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   // While open: lock body scroll, trap focus, restore focus to the trigger on
   // close, and wire Escape + Tab handling.
@@ -71,7 +68,9 @@ export default function RulesModal({
     };
   }, [open, onClose]);
 
-  if (!mounted || !open) return null;
+  // `open` only flips to true via a client-side click, so the server render
+  // always bails here — the typeof guard keeps createPortal safe regardless.
+  if (!open || typeof document === "undefined") return null;
 
   const heroTiers = [
     { img: "hero-new", count: t("tierNewCount"), desc: t("tierNewDesc") },

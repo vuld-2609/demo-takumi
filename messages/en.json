@@ -91,5 +91,84 @@
     "footer": {
       "copyright": "Copyright © 2025 Sun*"
     }
+  },
+  "profile": {
+    "iconCollection": "My icon collection",
+    "statsKudosReceived": "Kudos you received",
+    "statsKudosSent": "Kudos you sent",
+    "statsHeartsReceived": "Hearts you received",
+    "statsBoxesOpened": "Secret Boxes opened",
+    "statsBoxesUnopened": "Secret Boxes unopened",
+    "openSecretBox": "Open Secret Box",
+    "openSecretBoxAria": "Open Secret Box (not available yet)",
+    "awardsCaption": "Sun* Annual Awards 2025",
+    "kudosTitle": "KUDOS",
+    "filterSent": "Sent",
+    "filterReceived": "Received",
+    "emptyKudos": "No kudos yet.",
+    "copyLink": "Copy Link",
+    "spam": "Spam",
+    "hearts": "hearts",
+    "categoryIdolGioiTre": "YOUNG IDOL"
+  },
+  "awardSystem": {
+    "subtitle": "Sun* Annual Awards 2025",
+    "title": "SAA 2025 Award System",
+    "heroAlt": "ROOT FURTHER — Sun* Annual Awards 2025 keyvisual",
+    "quantityLabel": "Number of awards:",
+    "prizeLabel": "Prize value:",
+    "or": "Or",
+    "nav": {
+      "topTalent": "Top Talent",
+      "topProject": "Top Project",
+      "topProjectLeader": "Top Project Leader",
+      "bestManager": "Best Manager",
+      "signature": "Signature 2025 - Creator",
+      "mvp": "MVP"
+    },
+    "units": {
+      "individual": "Individual",
+      "team": "Team",
+      "individualOrTeam": "Individual or team"
+    },
+    "prizeNotes": {
+      "perAward": "per award",
+      "individual": "for individual award",
+      "team": "for team award",
+      "none": ""
+    },
+    "awards": {
+      "topTalent": {
+        "title": "Top Talent",
+        "description": "The Top Talent award honours all-round outstanding individuals — those who continually affirm solid professional expertise and exceptional performance, consistently delivering value beyond expectations and highly regarded by clients and teammates. Ready to take on any mission the organisation entrusts, they are a source of inspiration, driving motivation and creating positive impact across the whole team."
+      },
+      "topProject": {
+        "title": "Top Project",
+        "description": "The Top Project award honours outstanding project teams that combine business results beyond expectations, optimal operational efficiency and a dedicated working spirit. These are projects of high technical complexity, optimal resource and cost efficiency, proposing valuable ideas for clients, delivering superior profit and earning positive client feedback. Members strictly follow internal development standards, setting a model of excellence and professionalism."
+      },
+      "topProjectLeader": {
+        "title": "Top Project Leader",
+        "description": "The Top Project Leader award honours outstanding project managers — those who combine solid management capability, a strong ability to inspire, and an “Aim High – Be Agile” mindset across every problem and context. Under their leadership, members not only overcome challenges and reach their goals together but also keep the fire of enthusiasm and the Wasshoi spirit alive, growing into a finer, happier version of themselves."
+      },
+      "bestManager": {
+        "title": "Best Manager",
+        "description": "The Best Manager award honours exemplary leaders — those who have led their teams to results beyond expectations, with outstanding impact on business performance and the sustainable growth of the organisation. Under their leadership, the team conquers and masters every goal through multitasking capability, effective coordination and flexible application of technology in the digital era. They inspire the team to become confident and full of energy, ready to embrace — and even lead — revolutionary change."
+      },
+      "signature": {
+        "title": "Signature 2025 - Creator",
+        "description": "The Signature award honours an individual or team that embodies the distinctive spirit Sun* pursues in each era. In 2025, the Signature award honours the Creator — an individual/team with a proactive, sharp mindset, always seeing opportunity in challenge and pioneering in action. They are quick to spot problems, identify them and offer practical solutions that bring clear value to projects, clients or the organisation. With a creator's mindset and Sun*'s distinctive “Creator” spirit, they not only respond positively to change but proactively create improvements, helping shape new standards for how Sun* people create value."
+      },
+      "mvp": {
+        "title": "MVP (Most Valuable Person)",
+        "description": "The MVP award honours the most outstanding individual of the year — the representative face of the entire Sun* collective. They have shown superior capability, persistent dedication and far-reaching influence, leaving a strong mark on Sun*'s journey throughout the year. Beyond performance and results, they are a source of spreading inspiration — through their thinking, action and positive influence on the collective. The MVP fully embodies the qualities of an outstanding Sunner while carrying the great responsibility of becoming the role model for Sun*'s people and spirit, helping lead the collective toward new heights."
+      }
+    },
+    "kudos": {
+      "badge": "WHAT'S NEW IN SAA 2025",
+      "label": "Recognition movement",
+      "title": "Sun* Kudos",
+      "body": "A movement to recognize and thank colleagues — held for the very first time for all Sunners. Launching in November 2025, it encourages Sun* people to share words of recognition and thanks to colleagues on the system announced by the organizers. This will be material for the Heads Council to reference when selecting award recipients.",
+      "detail": "Details"
+    }
   }
 }
