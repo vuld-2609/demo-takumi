@@ -1,5 +1,24 @@
 import type { SVGProps } from "react";
 
+/** Chevron pointing left — used in carousel prev button. */
+export function ChevronLeftIcon({ size = 24, ...props }: { size?: number } & SVGProps<SVGSVGElement>) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Search / magnifying glass — used in kudos banner search pill. */
+export function SearchIcon({ size = 24, ...props }: { size?: number } & SVGProps<SVGSVGElement>) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /** Chevron pointing right — used in dropdown menus (Logout row). */
 export function ChevronRightIcon({ size = 24, ...props }: { size?: number } & SVGProps<SVGSVGElement>) {
   return (
