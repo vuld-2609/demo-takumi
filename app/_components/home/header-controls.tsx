@@ -6,18 +6,26 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { signOut } from "@/app/actions/auth";
 import { UserIcon, GridIcon, ChevronRightIcon } from "./icons";
+import NotificationBell from "@/app/_components/notifications/notification-bell";
+import type { NotificationFeed } from "@/lib/notifications/types";
 
 /**
  * Authenticated header controls (spec A1.6/A1.8): notification bell + panel and
  * the account menu (Profile / Sign out, plus Admin Dashboard for admins). The
  * language switcher is injected so it stays a single shared implementation.
+ *
+ * `notifications` carries the viewer's profile id + server-fetched feed so the
+ * bell renders correct unread state on first paint, then subscribes to realtime
+ * updates. Null when there is no resolvable profile.
  */
 export default function HeaderControls({
   isAdmin,
   languageSwitcher,
+  notifications,
 }: {
   isAdmin: boolean;
   languageSwitcher: ReactNode;
+  notifications: { profileId: string; feed: NotificationFeed } | null;
 }) {
   const t = useTranslations("home.header");
   const [openMenu, setOpenMenu] = useState<"none" | "bell" | "account">("none");
@@ -37,28 +45,16 @@ export default function HeaderControls({
         <div className="fixed inset-0 z-40" aria-hidden onClick={() => setOpenMenu("none")} />
       )}
 
-      {/* Notification bell */}
-      <div className="relative z-50">
-        <button
-          type="button"
-          onClick={() => toggle("bell")}
-          aria-haspopup="menu"
-          aria-expanded={openMenu === "bell"}
-          aria-label={t("notifications")}
-          className="relative flex h-10 w-10 items-center justify-center rounded transition-colors hover:bg-white/10"
-        >
-          <Image src="/homepage/icon-notification.svg" alt="" width={24} height={24} />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#D4271D]" />
-        </button>
-        {openMenu === "bell" && (
-          <div
-            role="menu"
-            className="absolute right-0 top-[calc(100%+8px)] w-72 rounded-lg border border-[#998C5F] bg-[#00070C] p-4 text-sm text-white/70"
-          >
-            {t("noNotifications")}
-          </div>
-        )}
-      </div>
+      {/* Notification bell (live) */}
+      {notifications && (
+        <NotificationBell
+          profileId={notifications.profileId}
+          initial={notifications.feed}
+          open={openMenu === "bell"}
+          onToggle={() => toggle("bell")}
+          onClose={() => setOpenMenu("none")}
+        />
+      )}
 
       {/* Language switcher (shared) */}
       {languageSwitcher}

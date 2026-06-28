@@ -14,9 +14,24 @@ There is no service key / DB connection in the repo, so **you must apply the SQL
 1. Open your project → **SQL Editor** → **New query**.
 2. Paste the contents of `migrations/0001_profiles_kudos.sql`, **Run**.
 3. Paste the contents of `migrations/0002_kudos_board.sql`, **Run**. *(Must follow 0001; idempotent / safe to re-run.)*
-4. (Optional, for demo data) paste `seed.sql`, **Run**.
+4. Paste the contents of `migrations/0003_kudos_compose_fields.sql`, **Run**. *(Compose-modal fields + image bucket.)*
+5. Paste the contents of `migrations/0004_notifications.sql`, **Run**. *(Realtime notifications — see below.)*
+6. Paste the contents of `migrations/0005_mention_notifications.sql`, **Run**. *(@mention notifications — extends the 0004 trigger.)*
+7. (Optional, for demo data) paste `seed.sql`, **Run**.
 
 Or with the Supabase CLI: `supabase db push` (migrations) then run `seed.sql`.
+
+## Migration 0004 — Realtime notifications
+Backs the notification bell + `/notifications` page. Adds:
+
+| Change | Detail |
+|---|---|
+| `notifications` table | `recipient_id`, `actor_id`, `type` (`kudo_received` / `heart_received`), `kudos_id`, `read_at`. RLS: a user only reads/updates their **own** rows. |
+| `notify_on_kudo` trigger | `after insert on kudos` → inserts a `kudo_received` notification for the receiver (skips self-kudos), plus `mention_received` for each `data-id` uuid found in the message body (0005; skips sender + receiver). |
+| `notify_on_heart` trigger | `after insert on kudos_hearts` → inserts a `heart_received` notification for the kudos' sender (skips self-hearts). |
+| Realtime publication | Table added to `supabase_realtime`; the browser subscribes via `postgres_changes` filtered to its own `recipient_id`. |
+
+Triggers are `security definer` (the actor isn't the recipient, so they bypass the recipient-only insert RLS). Rows are created **only** by these triggers — there is no client INSERT policy. Delivery is **Supabase Realtime** (WebSocket) — no extra socket server.
 
 ## Link your account to the seeded demo data (optional)
 Seeded profiles have `auth_user_id = NULL`, so they won't show on *your* profile page.

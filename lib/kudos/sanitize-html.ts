@@ -59,9 +59,14 @@ export function sanitizeKudoHtml(input: string): string {
         : "<a>";
     }
     if (name === "span") {
-      return /class\s*=\s*("mention"|'mention'|mention)\b/i.test(String(rawAttrs))
-        ? `<span class="mention">`
-        : "<span>";
+      const isMention = /class\s*=\s*("mention"|'mention'|mention)\b/i.test(String(rawAttrs));
+      if (!isMention) return "<span>";
+      // Keep a validated data-id (the mentioned profile uuid) so notifications
+      // can target the right person. Drop it if absent/malformed.
+      const idMatch = String(rawAttrs).match(/data-id\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i);
+      const id = idMatch ? idMatch[2] ?? idMatch[3] ?? idMatch[4] ?? "" : "";
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      return isUuid ? `<span class="mention" data-id="${escapeAttr(id)}">` : `<span class="mention">`;
     }
     return `<${name}>`;
   });

@@ -250,5 +250,18 @@
       "body": "A movement to recognize and thank colleagues — held for the very first time for all Sunners. Launching in November 2025, it encourages Sun* people to share words of recognition and thanks to colleagues on the system announced by the organizers. This will be material for the Heads Council to reference when selecting award recipients.",
       "detail": "Details"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "viewAll": "View all",
+    "empty": "No notifications yet.",
+    "unread": "Unread",
+    "anonymous": "Someone",
+    "item": {
+      "kudo_received": "{name} just sent you a heartfelt kudos!",
+      "heart_received": "{name} just loved your kudos!",
+      "mention_received": "{name} just mentioned you in a kudos!"
+    }
   }
 }
