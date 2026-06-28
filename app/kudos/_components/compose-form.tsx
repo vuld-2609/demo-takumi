@@ -11,7 +11,7 @@ import RichTextEditor from "./rich-text-editor";
 import HashtagInput from "./hashtag-input";
 import ImageUploader from "./image-uploader";
 
-interface MentionUser { id: string; displayName: string }
+interface MentionUser { id: string; displayName: string; avatarUrl?: string; rank?: string }
 
 export interface ComposeFormState {
   selectedReceiver: Receiver | null;
@@ -75,20 +75,27 @@ export default function ComposeForm({
 }: ComposeFormProps) {
   const { selectedReceiver, title, messageHtml, hashtags, images, isAnonymous, anonymousName } = state;
 
+  const missingReceiver = !effectiveReceiver;
+  const missingMessage = plainText.length === 0;
+  const missingHashtag = hashtags.length === 0;
+  const missingAnonymousName = isAnonymous && !anonymousName.trim();
+
+  const showCombinedError = showErrors && (missingReceiver || missingMessage || missingHashtag || missingAnonymousName);
+
   return (
     <div className="flex flex-col gap-5">
       {/* 1. Người nhận */}
       <FieldRow
         label="Người nhận"
         required
-        errorMsg={showErrors && !effectiveReceiver ? "Vui lòng chọn người nhận" : null}
+        errorMsg={showErrors && missingReceiver ? "Vui lòng chọn người nhận" : null}
       >
         <RecipientAutocomplete
           options={receivers}
           value={selectedReceiver}
           onSelect={(r) => onChange("selectedReceiver", r)}
           placeholder="Tìm kiếm"
-          hasError={showErrors && !effectiveReceiver}
+          hasError={showErrors && missingReceiver}
           preselected={preselected}
         />
       </FieldRow>
@@ -121,28 +128,25 @@ export default function ComposeForm({
         <RichTextEditor
           value={messageHtml}
           onChange={(html) => onChange("messageHtml", html)}
-          hasError={showErrors && plainText.length === 0}
+          hasError={showErrors && missingMessage}
           mentionableUsers={mentionableUsers}
         />
-        {showErrors && plainText.length === 0 && (
+        {showErrors && missingMessage && (
           <p className="text-xs text-red-500">Vui lòng nhập nội dung</p>
         )}
-        <p className="text-sm font-medium text-gray-700">
-          Bạn có thể &ldquo;@ + tên&rdquo; để nhắc tới đồng nghiệp khác
-        </p>
       </div>
 
       {/* 4. Hashtag */}
       <FieldRow
         label="Hashtag"
         required
-        errorMsg={showErrors && hashtags.length === 0 ? "Vui lòng thêm ít nhất 1 hashtag" : null}
+        errorMsg={showErrors && missingHashtag ? "Vui lòng thêm ít nhất 1 hashtag" : null}
       >
         <HashtagInput
           suggestions={hashtagSuggestions}
           tags={hashtags}
           onChange={(t) => onChange("hashtags", t)}
-          hasError={showErrors && hashtags.length === 0}
+          hasError={showErrors && missingHashtag}
         />
       </FieldRow>
 
@@ -163,15 +167,34 @@ export default function ComposeForm({
           <span className="text-sm text-gray-700">Gửi lời cám ơn và ghi nhận ẩn danh</span>
         </label>
         {isAnonymous && (
-          <input
-            type="text"
-            value={anonymousName}
-            onChange={(e) => onChange("anonymousName", e.target.value)}
-            placeholder="Tên hiển thị ẩn danh"
-            className="ml-7 h-10 w-full max-w-sm rounded-lg border border-[#998C5F] bg-white px-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#998C5F]"
-          />
+          <div className="ml-7 flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-700">
+              Nickname ẩn danh<span className="ml-0.5 text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={anonymousName}
+              onChange={(e) => onChange("anonymousName", e.target.value)}
+              placeholder="Tên hiển thị ẩn danh"
+              className="h-10 w-full max-w-sm rounded-lg px-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#998C5F]"
+              style={{
+                background: "#fff",
+                border: `1px solid ${showErrors && missingAnonymousName ? "#D4271D" : "#998C5F"}`,
+              }}
+            />
+            {showErrors && missingAnonymousName && (
+              <p className="text-xs text-red-500">Vui lòng nhập nickname ẩn danh</p>
+            )}
+          </div>
         )}
       </div>
+
+      {/* Combined validation message — shown above footer buttons */}
+      {showCombinedError && (
+        <p className="rounded-lg px-3 py-2 text-sm font-medium text-red-600" style={{ background: "#FFF0F0" }}>
+          Bạn cần điền đủ Người nhận, Lời nhắn gửi và Hashtag để gửi Kudos!
+        </p>
+      )}
 
       {serverError && <p className="text-sm text-red-500">{serverError}</p>}
     </div>

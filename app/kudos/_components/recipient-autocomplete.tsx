@@ -2,19 +2,23 @@
 
 /**
  * RecipientAutocomplete — search input that filters a list of receivers and
- * lets the user pick one. Shows a dropdown on focus/typing. Has a chevron icon
- * on the right. Controlled: calls onSelect with the chosen Receiver.
+ * lets the user pick one. Shows a DARK dropdown on focus/typing with circular
+ * avatar, bold display name, and muted rank. Has a chevron on the right of the
+ * light input. Controlled: calls onSelect with the chosen Receiver.
  *
  * NOTE: The parent (ComposeDialog) passes a changing `key` each time the modal
  * opens, so remounting handles field reset — no setState-in-effect needed.
  */
 
 import { useEffect, useId, useRef, useState } from "react";
+import Image from "next/image";
 import { ChevronDownIcon } from "@/app/_components/home/icons";
 
 export interface Receiver {
   id: string;
   displayName: string;
+  avatarUrl?: string;
+  rank?: string;
 }
 
 interface RecipientAutocompleteProps {
@@ -27,6 +31,30 @@ interface RecipientAutocompleteProps {
   preselected?: Receiver;
 }
 
+function AvatarCircle({ avatarUrl, displayName }: { avatarUrl?: string; displayName: string }) {
+  const initials = displayName
+    .split(" ")
+    .slice(-2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+
+  if (avatarUrl) {
+    return (
+      <span className="relative shrink-0 h-8 w-8 overflow-hidden rounded-full">
+        <Image src={avatarUrl} alt={displayName} fill sizes="32px" className="object-cover" />
+      </span>
+    );
+  }
+  return (
+    <span
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+      style={{ background: "#3A3320", color: "#FFEA9E" }}
+    >
+      {initials}
+    </span>
+  );
+}
+
 export default function RecipientAutocomplete({
   options,
   value,
@@ -35,7 +63,6 @@ export default function RecipientAutocomplete({
   hasError = false,
   preselected,
 }: RecipientAutocompleteProps) {
-  // Initialise once from props; parent remounts via `key` to reset.
   const [query, setQuery] = useState(preselected?.displayName ?? value?.displayName ?? "");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,9 +80,7 @@ export default function RecipientAutocomplete({
   }, []);
 
   const filtered = query
-    ? options.filter((o) =>
-        o.displayName.toLowerCase().includes(query.toLowerCase()),
-      )
+    ? options.filter((o) => o.displayName.toLowerCase().includes(query.toLowerCase()))
     : options;
 
   function handleSelect(r: Receiver) {
@@ -109,8 +134,12 @@ export default function RecipientAutocomplete({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-50 mt-1 w-full overflow-auto rounded-lg border border-[#998C5F] bg-white shadow-lg"
-          style={{ maxHeight: 220 }}
+          className="absolute z-50 mt-1 w-full overflow-auto rounded-xl shadow-xl"
+          style={{
+            maxHeight: 260,
+            background: "#111111",
+            border: "1px solid #2A2A2A",
+          }}
         >
           {filtered.map((r) => (
             <li key={r.id}>
@@ -122,9 +151,26 @@ export default function RecipientAutocomplete({
                   e.preventDefault(); // prevent input blur before select
                   handleSelect(r);
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-[#FFFAE8] focus:bg-[#FFFAE8] focus:outline-none"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors focus:outline-none"
+                style={{ background: "transparent" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "#1E1E1E";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                }}
               >
-                {r.displayName}
+                <AvatarCircle avatarUrl={r.avatarUrl} displayName={r.displayName} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold" style={{ color: "#F0F0F0" }}>
+                    {r.displayName}
+                  </p>
+                  {r.rank && (
+                    <p className="truncate text-xs" style={{ color: "#888" }}>
+                      {r.rank}
+                    </p>
+                  )}
+                </div>
               </button>
             </li>
           ))}

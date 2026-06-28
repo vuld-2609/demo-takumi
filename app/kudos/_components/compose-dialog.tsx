@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { CloseIcon, SendIcon } from "@/app/_components/home/icons";
+import type { MentionableUser } from "@/lib/kudos/types";
 import type { Receiver } from "./recipient-autocomplete";
 import ComposeForm, { type ComposeFormState } from "./compose-form";
 
@@ -26,21 +27,19 @@ export interface KudosSubmitPayload {
   anonymousName: string;
 }
 
-interface MentionUser { id: string; displayName: string }
-
 export interface ComposeDialogProps {
   open: boolean;
   onClose: () => void;
   receiver?: Receiver;
   receivers?: Receiver[];
-  mentionableUsers?: MentionUser[];
+  mentionableUsers?: MentionableUser[];
   hashtagSuggestions?: string[];
   onSubmit?: (payload: KudosSubmitPayload) => Promise<{ ok: boolean }>;
 }
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
-const DEFAULT_MENTION_USERS: MentionUser[] = [
+const DEFAULT_MENTION_USERS: MentionableUser[] = [
   { id: "m1", displayName: "Nguyễn Văn An" },
   { id: "m2", displayName: "Trần Thị Bình" },
   { id: "m3", displayName: "Lê Minh Cường" },
@@ -131,8 +130,11 @@ export default function ComposeDialog({
   const effectiveReceiver = receiver ?? formState.selectedReceiver;
   const plainText = formState.messageHtml.replace(/<[^>]*>/g, "").trim();
   const isFormValid =
-    !!effectiveReceiver && formState.title.trim().length > 0 &&
-    plainText.length > 0 && formState.hashtags.length >= 1;
+    !!effectiveReceiver &&
+    formState.title.trim().length > 0 &&
+    plainText.length > 0 &&
+    formState.hashtags.length >= 1 &&
+    (!formState.isAnonymous || formState.anonymousName.trim().length > 0);
 
   function handleSubmit() {
     if (!isFormValid) { setShowErrors(true); return; }

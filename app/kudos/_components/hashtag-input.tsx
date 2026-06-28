@@ -2,9 +2,12 @@
 
 /**
  * HashtagInput — chip-based hashtag field.
- * - Shows a "+ Hashtag" button that opens a dropdown of suggestions + free-text entry.
- * - Added tags render as chips with × remove button.
- * - Min 1, max 5. At 5 the add button is hidden.
+ * - Chips display with leading "#" and an "×" remove button.
+ * - "+ Hashtag" button (with "Tối đa 5" note) opens a DARK dropdown panel.
+ * - Dropdown lists suggestions; selected rows show a filled-circle checkmark.
+ * - Clicking a row toggles selection (add if <5, remove if already selected).
+ * - Free-text entry + Enter adds a custom tag.
+ * - At 5 tags the add button is hidden; a "Tối đa 5 hashtag" note appears.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +20,15 @@ interface HashtagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
   hasError?: boolean;
+}
+
+function CheckCircleIcon() {
+  return (
+    <svg width={18} height={18} viewBox="0 0 18 18" fill="none" aria-hidden>
+      <circle cx="9" cy="9" r="9" fill="#FFEA9E" />
+      <path d="M5 9.5L7.5 12L13 6.5" stroke="#1A1200" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 export default function HashtagInput({
@@ -41,8 +53,10 @@ export default function HashtagInput({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  function addTag(tag: string) {
-    const clean = tag.replace(/^#+/, "").trim();
+  function normalize(s: string) { return s.replace(/^#+/, "").trim(); }
+
+  function addTag(raw: string) {
+    const clean = normalize(raw);
     if (!clean) return;
     if (tags.length >= MAX_TAGS) return;
     if (tags.map((t) => t.toLowerCase()).includes(clean.toLowerCase())) return;
@@ -53,24 +67,27 @@ export default function HashtagInput({
     onChange(tags.filter((t) => t !== tag));
   }
 
-  function handleSuggestionClick(s: string) {
-    addTag(s);
-    setOpen(false);
-    setInputVal("");
+  function toggleSuggestion(s: string) {
+    const already = tags.map((t) => t.toLowerCase()).includes(s.toLowerCase());
+    if (already) {
+      removeTag(tags.find((t) => t.toLowerCase() === s.toLowerCase()) ?? s);
+    } else {
+      addTag(s);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      addTag(inputVal);
-      setInputVal("");
+      if (tags.length < MAX_TAGS) {
+        addTag(inputVal);
+        setInputVal("");
+      }
     }
   }
 
-  const remaining = MAX_TAGS - tags.length;
-  const filteredSuggestions = suggestions.filter(
-    (s) => !tags.map((t) => t.toLowerCase()).includes(s.toLowerCase()),
-  );
+  const atMax = tags.length >= MAX_TAGS;
+  const tagSet = new Set(tags.map((t) => t.toLowerCase()));
 
   return (
     <div ref={containerRef} className="flex flex-wrap items-center gap-2">
@@ -94,31 +111,34 @@ export default function HashtagInput({
       ))}
 
       {/* Add button — hidden when at max */}
-      {tags.length < MAX_TAGS && (
+      {!atMax && (
         <div className="relative">
-          <button
-            type="button"
-            onClick={() => {
-              setOpen((o) => !o);
-              setTimeout(() => inputRef.current?.focus(), 50);
-            }}
-            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[#FFFAE8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#998C5F]"
-            style={{
-              borderColor: hasError ? "#D4271D" : "#998C5F",
-              color: "#3D3010",
-            }}
-          >
-            <PlusIcon size={14} />
-            Hashtag
-            <span className="text-xs text-gray-400">Tối đa {MAX_TAGS}</span>
-          </button>
+          <div className="flex flex-col items-start gap-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen((o) => !o);
+                setTimeout(() => inputRef.current?.focus(), 50);
+              }}
+              className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[#FFFAE8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#998C5F]"
+              style={{
+                borderColor: hasError ? "#D4271D" : "#998C5F",
+                color: "#3D3010",
+              }}
+            >
+              <PlusIcon size={14} />
+              Hashtag
+            </button>
+            <span className="pl-1 text-xs text-gray-400">Tối đa {MAX_TAGS}</span>
+          </div>
 
           {open && (
             <div
-              className="absolute left-0 top-full z-50 mt-1 w-56 rounded-lg border border-[#998C5F] bg-white shadow-lg"
+              className="absolute left-0 top-full z-50 mt-1 w-64 overflow-hidden rounded-xl shadow-xl"
+              style={{ background: "#111111", border: "1px solid #2A2A2A" }}
             >
               {/* Free-text entry */}
-              <div className="border-b border-[#E5DFC8] px-3 py-2">
+              <div className="border-b px-3 py-2.5" style={{ borderColor: "#2A2A2A" }}>
                 <input
                   ref={inputRef}
                   type="text"
@@ -127,33 +147,50 @@ export default function HashtagInput({
                   onKeyDown={handleKeyDown}
                   placeholder="Nhập hashtag..."
                   maxLength={40}
-                  className="w-full bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none"
+                  disabled={atMax}
+                  className="w-full bg-transparent text-sm text-gray-200 placeholder:text-gray-500 outline-none disabled:opacity-40"
                 />
               </div>
 
-              {/* Suggestions */}
-              {filteredSuggestions.length > 0 && (
-                <ul className="max-h-40 overflow-auto py-1">
-                  {filteredSuggestions.map((s) => (
-                    <li key={s}>
-                      <button
-                        type="button"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          handleSuggestionClick(s);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-[#FFFAE8]"
-                      >
-                        #{s}
-                      </button>
-                    </li>
-                  ))}
+              {/* Suggestions list */}
+              {suggestions.length > 0 && (
+                <ul className="max-h-48 overflow-auto py-1">
+                  {suggestions.map((s) => {
+                    const selected = tagSet.has(s.toLowerCase());
+                    const disabled = !selected && atMax;
+                    return (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          disabled={disabled}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            if (!disabled) toggleSuggestion(s);
+                          }}
+                          className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors disabled:opacity-40"
+                          style={{
+                            color: selected ? "#FFEA9E" : "#E5E5E5",
+                            background: "transparent",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!disabled) (e.currentTarget as HTMLButtonElement).style.background = "#1E1E1E";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                          }}
+                        >
+                          <span>#{s}</span>
+                          {selected && <CheckCircleIcon />}
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
 
-              {remaining <= 2 && remaining > 0 && (
-                <p className="px-3 py-1.5 text-xs text-gray-400">
-                  Còn {remaining} hashtag
+              {atMax && (
+                <p className="px-4 py-2 text-xs" style={{ color: "#888" }}>
+                  Tối đa 5 hashtag
                 </p>
               )}
             </div>
@@ -161,7 +198,7 @@ export default function HashtagInput({
         </div>
       )}
 
-      {tags.length >= MAX_TAGS && (
+      {atMax && (
         <span className="text-xs text-gray-500">Tối đa {MAX_TAGS} hashtag</span>
       )}
     </div>

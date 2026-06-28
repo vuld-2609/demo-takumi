@@ -4,10 +4,12 @@
  * RichTextEditor — contentEditable editor with formatting toolbar and
  * @mention popup. Toolbar is split into RichTextToolbar to stay < 200 lines.
  * Calls onChange with the current innerHTML on every input event.
+ * Shows a "X/1.000" plain-text counter bottom-right; enforces MAX_KUDO_MESSAGE_LENGTH.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import RichTextToolbar from "./rich-text-toolbar";
+import { MAX_KUDO_MESSAGE_LENGTH } from "@/lib/kudos/types";
 
 interface MentionUser {
   id: string;
@@ -22,6 +24,10 @@ interface RichTextEditorProps {
   mentionableUsers?: MentionUser[];
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+}
+
 export default function RichTextEditor({
   value,
   onChange,
@@ -34,12 +40,14 @@ export default function RichTextEditor({
   const [mentionOpen, setMentionOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionPos, setMentionPos] = useState<{ top: number; left: number } | null>(null);
+  const [charCount, setCharCount] = useState(() => stripHtml(value).trim().length);
 
   // Seed initial HTML once — parent remounts via `key` to reset
   useEffect(() => {
     if (editorRef.current && value && !editorRef.current.innerHTML) {
       editorRef.current.innerHTML = value;
       setIsEmpty(false);
+      setCharCount(stripHtml(value).trim().length);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -48,7 +56,9 @@ export default function RichTextEditor({
     const el = editorRef.current;
     if (!el) return;
     const html = el.innerHTML;
-    setIsEmpty(!el.textContent?.trim());
+    const plain = stripHtml(html).trim();
+    setIsEmpty(!plain.length);
+    setCharCount(plain.length);
     onChange(html === "<br>" ? "" : html);
   }
 
@@ -74,6 +84,31 @@ export default function RichTextEditor({
     if (editorRef.current) checkMentionTrigger(editorRef.current);
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape") { setMentionOpen(false); return; }
+
+    // Block typing when at limit (allow navigation/deletion keys)
+    const navKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
+    if (charCount >= MAX_KUDO_MESSAGE_LENGTH && !navKeys.includes(e.key) && !e.metaKey && !e.ctrlKey) {
+      e.preventDefault();
+    }
+  }
+
+  function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
+    const text = e.clipboardData.getData("text/plain");
+    const el = editorRef.current;
+    if (!el) return;
+    const currentPlain = stripHtml(el.innerHTML).trim();
+    const remaining = MAX_KUDO_MESSAGE_LENGTH - currentPlain.length;
+    if (remaining <= 0) { e.preventDefault(); return; }
+    if (text.length > remaining) {
+      e.preventDefault();
+      const truncated = text.slice(0, remaining);
+      document.execCommand("insertText", false, truncated);
+      syncChange();
+    }
+  }
+
   const insertMention = useCallback(
     (user: MentionUser) => {
       const sel = window.getSelection();
@@ -89,8 +124,6 @@ export default function RichTextEditor({
       del.deleteContents();
       const span = document.createElement("span");
       span.textContent = `@${user.displayName} `;
-      // Use a class (not inline style) so the mention styling survives HTML
-      // sanitization and renders consistently on board/profile cards.
       span.className = "mention";
       del.insertNode(span);
       const after = document.createRange();
@@ -112,10 +145,12 @@ export default function RichTextEditor({
   );
 
   const borderColor = hasError ? "#D4271D" : "#998C5F";
+  const atLimit = charCount >= MAX_KUDO_MESSAGE_LENGTH;
 
   return (
     <div className="overflow-hidden rounded-lg" style={{ border: `1px solid ${borderColor}`, background: "#fff" }}>
       <RichTextToolbar
+        editorRef={editorRef}
         onFormat={() => {
           editorRef.current?.focus();
           syncChange();
@@ -136,7 +171,8 @@ export default function RichTextEditor({
           aria-multiline="true"
           aria-label="Nội dung Kudo"
           onInput={handleInput}
-          onKeyDown={(e) => { if (e.key === "Escape") setMentionOpen(false); }}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           className="min-h-45 px-3 py-3 text-sm text-gray-700 outline-none"
           style={{ wordBreak: "break-word" }}
         />
@@ -162,6 +198,21 @@ export default function RichTextEditor({
             ))}
           </ul>
         )}
+      </div>
+
+      {/* Bottom row: hint left, counter right */}
+      <div className="flex items-center justify-between px-3 pb-2 pt-1">
+        <span className="text-xs text-gray-500">
+          Bạn có thể &ldquo;@ + tên&rdquo; để nhắc tới đồng nghiệp khác
+        </span>
+        <span
+          className="shrink-0 text-xs font-medium tabular-nums"
+          style={{ color: atLimit ? "#D4271D" : "#6B7280" }}
+          aria-live="polite"
+          aria-label={`${charCount} / ${MAX_KUDO_MESSAGE_LENGTH.toLocaleString("vi-VN")} ký tự`}
+        >
+          {charCount.toLocaleString("vi-VN")}/{MAX_KUDO_MESSAGE_LENGTH.toLocaleString("vi-VN")}
+        </span>
       </div>
     </div>
   );

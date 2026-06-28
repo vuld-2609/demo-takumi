@@ -209,16 +209,19 @@ export async function getSpotlightData(): Promise<{ total: number; names: string
   return { total: totalRes.count ?? 0, names };
 }
 
-/** All profiles as compose-dialog receiver options / @mention targets (id + name). */
+/** All profiles as compose-dialog receiver options / @mention targets
+ * (id + name + avatar + rank — avatar/rank shown in the recipient dropdown). */
 export async function getReceiverOptions(): Promise<MentionableUser[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id, display_name")
+    .select("id, display_name, avatar_url, rank")
     .order("display_name", { ascending: true });
   return (data ?? []).map((r) => ({
     id: r.id as string,
     displayName: (r.display_name as string) ?? "Sunner",
+    avatarUrl: (r.avatar_url as string) || FALLBACK_AVATAR,
+    rank: (r.rank as string) ?? "",
   }));
 }
 

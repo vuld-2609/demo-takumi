@@ -10,6 +10,7 @@ import {
   MAX_KUDO_IMAGES,
   MAX_KUDO_IMAGE_BYTES,
   MAX_KUDO_TITLE_LENGTH,
+  MAX_KUDO_MESSAGE_LENGTH,
   MAX_HASHTAG_LENGTH,
   type HoverCardData,
 } from "@/lib/kudos/types";
@@ -139,7 +140,9 @@ export async function createKudos(input: {
   if (!title) return { ok: false, error: "empty_title" };
 
   const messageHtml = sanitizeKudoHtml(input.message);
-  if (!htmlToPlainText(messageHtml)) return { ok: false, error: "empty_message" };
+  const plain = htmlToPlainText(messageHtml);
+  if (!plain) return { ok: false, error: "empty_message" };
+  if (plain.length > MAX_KUDO_MESSAGE_LENGTH) return { ok: false, error: "message_too_long" };
 
   // Normalize hashtags: strip leading '#', trim, length-cap, drop blanks, de-dupe, cap count.
   const hashtags = Array.from(
