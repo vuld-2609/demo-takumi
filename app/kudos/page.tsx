@@ -59,7 +59,7 @@ export default async function KudosPage({
       getHashtagOptions(),
       getDepartmentOptions(),
       getLeaderboards(),
-      getReceiverOptions(),
+      getReceiverOptions(viewerId),
       getHashtagSuggestions(),
       viewerId ? getSidebarStats(viewerId) : Promise.resolve(EMPTY_STATS),
       getSpotlightData(),

@@ -5,6 +5,30 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import RulesModal from "./rules-modal";
 import { CloseIcon, PenIcon } from "./icons";
+import ComposeDialog, { type KudosSubmitPayload } from "@/app/kudos/_components/compose-dialog";
+import { createKudos } from "@/app/actions/kudos";
+import type { MentionableUser } from "@/lib/kudos/types";
+
+/** Adapt the modal payload to the createKudos server action. */
+async function submitKudos(p: KudosSubmitPayload): Promise<{ ok: boolean }> {
+  const result = await createKudos({
+    receiverId: p.receiverId,
+    title: p.title,
+    message: p.messageHtml,
+    hashtags: p.hashtags,
+    images: p.images,
+    isAnonymous: p.isAnonymous,
+    anonymousName: p.anonymousName,
+  });
+  return { ok: result.ok };
+}
+
+interface WidgetButtonProps {
+  /** Recipient options + @mention targets (self already excluded server-side). */
+  receivers?: MentionableUser[];
+  /** Curated + in-use hashtag suggestions for the compose dropdown. */
+  hashtagSuggestions?: string[];
+}
 
 /**
  * Floating quick-action widget (spec item 6 / FAB screens _hphd32jN2 +
@@ -13,10 +37,16 @@ import { CloseIcon, PenIcon } from "./icons";
  * "Viết KUDOS") with the trigger turning into a round red close button.
  * The action targets are placeholders until those features land.
  */
-export default function WidgetButton() {
+export default function WidgetButton({
+  receivers = [],
+  hashtagSuggestions = [],
+}: WidgetButtonProps) {
   const t = useTranslations("home.widget");
   const [open, setOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
+  // Bumped on each open so ComposeDialog remounts with fresh field state.
+  const [composeKey, setComposeKey] = useState(0);
 
   const openRules = () => {
     setRulesOpen(true);
@@ -24,9 +54,24 @@ export default function WidgetButton() {
   };
   const closeRules = useCallback(() => setRulesOpen(false), []);
 
+  const openCompose = () => {
+    setComposeKey((k) => k + 1);
+    setComposeOpen(true);
+    setOpen(false);
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
       <RulesModal open={rulesOpen} onClose={closeRules} />
+      <ComposeDialog
+        key={composeKey}
+        open={composeOpen}
+        onClose={() => setComposeOpen(false)}
+        receivers={receivers}
+        mentionableUsers={receivers}
+        hashtagSuggestions={hashtagSuggestions}
+        onSubmit={submitKudos}
+      />
 
       {open && (
         <div role="menu" className="flex flex-col items-end gap-3">
@@ -39,7 +84,7 @@ export default function WidgetButton() {
               <Image src="/homepage/icon-kudos-logo.svg" alt="" width={24} height={23} aria-hidden />
             }
           />
-          <OptionPill role="menuitem" label={t("writeKudos")} icon={<PenIcon />} />
+          <OptionPill role="menuitem" label={t("writeKudos")} onClick={openCompose} icon={<PenIcon />} />
         </div>
       )}
 

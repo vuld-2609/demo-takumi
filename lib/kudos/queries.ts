@@ -210,13 +210,18 @@ export async function getSpotlightData(): Promise<{ total: number; names: string
 }
 
 /** All profiles as compose-dialog receiver options / @mention targets
- * (id + name + avatar + rank — avatar/rank shown in the recipient dropdown). */
-export async function getReceiverOptions(): Promise<MentionableUser[]> {
+ * (id + name + avatar + rank — avatar/rank shown in the recipient dropdown).
+ * `excludeProfileId` drops the viewer's own profile (can't send a kudos to yourself). */
+export async function getReceiverOptions(
+  excludeProfileId?: string | null,
+): Promise<MentionableUser[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from("profiles")
     .select("id, display_name, avatar_url, rank")
     .order("display_name", { ascending: true });
+  if (excludeProfileId) query = query.neq("id", excludeProfileId);
+  const { data } = await query;
   return (data ?? []).map((r) => ({
     id: r.id as string,
     displayName: (r.display_name as string) ?? "Sunner",
