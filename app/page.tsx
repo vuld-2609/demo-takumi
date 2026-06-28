@@ -7,6 +7,8 @@ import AwardsSection from "./_components/home/awards-section";
 import SunKudosSection from "./_components/home/sun-kudos-section";
 import WidgetButton from "./_components/home/widget-button";
 import SiteFooter from "./_components/home/site-footer";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { getViewerProfileId, getReceiverOptions, getHashtagSuggestions } from "@/lib/kudos/queries";
 
 const montserrat = Montserrat({
   subsets: ["latin", "vietnamese"],
@@ -19,7 +21,15 @@ const montserrat = Montserrat({
  * visitors are redirected to /login). Keyvisual hero backdrop + fixed header,
  * stacked content sections, floating widget, and footer.
  */
-export default function Home() {
+export default async function Home() {
+  // Compose-modal data for the floating widget (self excluded from recipients).
+  const user = await getCurrentUser();
+  const viewerId = user ? await getViewerProfileId(user.id) : null;
+  const [receivers, hashtagSuggestions] = await Promise.all([
+    getReceiverOptions(viewerId),
+    getHashtagSuggestions(),
+  ]);
+
   return (
     <div
       className={`${montserrat.className} relative flex min-h-screen flex-col overflow-x-clip`}
@@ -56,7 +66,7 @@ export default function Home() {
         <SunKudosSection />
       </main>
 
-      <WidgetButton />
+      <WidgetButton receivers={receivers} hashtagSuggestions={hashtagSuggestions} />
 
       <div className="relative z-10">
         <SiteFooter />
