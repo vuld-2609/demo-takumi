@@ -250,5 +250,18 @@
       "body": "Hoạt động ghi nhận và cảm ơn đồng nghiệp - lần đầu tiên được diễn ra dành cho tất cả Sunner. Hoạt động sẽ được triển khai vào tháng 11/2025, khuyến khích người Sun* chia sẻ những lời ghi nhận, cảm ơn đồng nghiệp trên hệ thống do BTC công bố. Đây sẽ là chất liệu để Hội đồng Heads tham khảo trong quá trình lựa chọn người đạt giải.",
       "detail": "Chi tiết"
     }
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "markAllRead": "Đánh dấu đọc tất cả",
+    "viewAll": "Xem tất cả",
+    "empty": "Chưa có thông báo nào.",
+    "unread": "Chưa đọc",
+    "anonymous": "Người ẩn danh",
+    "item": {
+      "kudo_received": "{name} vừa gửi đến bạn lời ghi nhận đầy yêu thương!",
+      "heart_received": "{name} vừa thả tim cho lời ghi nhận của bạn!",
+      "mention_received": "{name} vừa nhắc đến bạn trong một lời ghi nhận!"
+    }
   }
 }

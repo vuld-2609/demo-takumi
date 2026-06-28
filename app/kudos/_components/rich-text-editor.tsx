@@ -125,6 +125,9 @@ export default function RichTextEditor({
       const span = document.createElement("span");
       span.textContent = `@${user.displayName} `;
       span.className = "mention";
+      // Persist the mentioned profile id so the server can notify them. Display
+      // names alone are ambiguous (duplicates); the id is the source of truth.
+      span.dataset.id = user.id;
       del.insertNode(span);
       const after = document.createRange();
       after.setStartAfter(span);

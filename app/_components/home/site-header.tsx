@@ -3,6 +3,9 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import LanguageSwitcher from "@/app/login/_components/language-switcher";
 import { getCurrentUser } from "@/lib/auth/current-user";
+import { getViewerProfileId } from "@/lib/kudos/queries";
+import { getNotificationFeed } from "@/lib/notifications/queries";
+import type { NotificationFeed } from "@/lib/notifications/types";
 import HeaderControls from "./header-controls";
 import SiteNav from "./site-nav";
 
@@ -14,6 +17,16 @@ import SiteNav from "./site-nav";
 export default async function SiteHeader() {
   const user = await getCurrentUser();
   const t = await getTranslations("home");
+
+  // For authenticated users, resolve the profile id and pre-fetch the feed so
+  // the bell shows correct unread state on first paint before realtime kicks in.
+  let notifications: { profileId: string; feed: NotificationFeed } | null = null;
+  if (user) {
+    const profileId = await getViewerProfileId(user.id);
+    if (profileId) {
+      notifications = { profileId, feed: await getNotificationFeed(profileId) };
+    }
+  }
 
   const navLinks = [
     { href: "/", label: t("nav.about") },
@@ -40,6 +53,7 @@ export default async function SiteHeader() {
           <HeaderControls
             isAdmin={user.isAdmin}
             languageSwitcher={<LanguageSwitcher />}
+            notifications={notifications}
           />
         ) : (
           <>

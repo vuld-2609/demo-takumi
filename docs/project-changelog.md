@@ -5,6 +5,15 @@
 ### 2026-06-28
 
 #### Added
+- **Realtime notifications** — live notification bell + full `/notifications` page (auth-gated).
+  - Delivery via **Supabase Realtime** (`postgres_changes` over WebSocket) — no extra socket server. Each user subscribes to their own `recipient_id` rows; RLS scopes visibility.
+  - Three real triggers (no mock data): `kudo_received` (someone sent you a kudos), `heart_received` (someone hearted your kudos), and `mention_received` (someone @mentioned you in a kudos body), created by `security definer` DB triggers on `kudos` / `kudos_hearts` insert.
+  - **@mention notifications**: the compose editor now embeds the mentioned profile id as `data-id="<uuid>"` on each mention span (sanitizer validates the uuid); the kudos trigger parses those ids and notifies each, skipping the sender (self) and the receiver (already gets `kudo_received`).
+  - Bell dropdown: unread badge count, per-item read on click (routes to `/kudos`), "Đánh dấu đọc tất cả", "Xem tất cả" → `/notifications`. Anonymous kudos senders are masked in the notification text.
+  - Files: `app/_components/notifications/` (bell, list, item, icons); `app/notifications/` (page + client); data layer `lib/notifications/{types,queries,use-notifications}.ts`; server actions `app/actions/notifications.ts` (`fetchNotifications`, `markNotificationRead`, `markAllNotificationsRead`). Header wiring in `app/_components/home/{site-header,header-controls}.tsx`.
+  - **i18n** — `notifications.*` namespace added to `messages/vi.json` and `messages/en.json`.
+  - **Out of scope:** the other design notification types (Secret Box, rank-up, badge collection, spam moderation) — no backing data/features exist yet.
+
 - **Sun* Kudos Live Board** (`/kudos` — auth-gated, redirects to `/login`). Built from MoMorph design.
   - Sections: keyvisual banner + compose input pill; HIGHLIGHT KUDOS carousel (top-5 by hearts, center-focus with 2 flanking blurred cards); ALL KUDOS feed; right sidebar (viewer stats, two seeded leaderboards, placeholder Secret Box).
   - Filters: Hashtag + Phòng ban single-select dropdowns on the carousel; filter state propagated via URL `searchParams` and affects both sections.
@@ -36,6 +45,14 @@
 - **Migration `supabase/migrations/0003_kudos_compose_fields.sql`**:
   - `kudos` table: added `title` (text), `is_anonymous` (boolean), `anonymous_name` (text); `message` column now stores sanitized rich-text HTML.
   - New Supabase Storage bucket `kudos-images` (public) with INSERT policy restricting uploads to the uploader's own profile-id folder.
+- **Migration `supabase/migrations/0004_notifications.sql`** (apply after 0003):
+  - New `notifications` table (`recipient_id`, `actor_id`, `type`, `kudos_id`, `read_at`) with `replica identity full`; indexes on `(recipient_id, created_at)` and partial unread index.
+  - RLS: recipient-only SELECT + UPDATE; no client INSERT (rows created solely by triggers).
+  - `security definer` triggers `notify_on_kudo` (on `kudos` insert) and `notify_on_heart` (on `kudos_hearts` insert); both skip self-events.
+  - Table added to the `supabase_realtime` publication for WebSocket delivery.
+- **Migration `supabase/migrations/0005_mention_notifications.sql`** (apply after 0004):
+  - Widened `notifications_type_check` to include `mention_received`.
+  - Updated `notify_on_kudo` to extract `data-id` uuids from the kudos message HTML and insert `mention_received` notifications (existing-profile join prevents FK errors; excludes sender + receiver).
 
 ### 2026-06-27
 
