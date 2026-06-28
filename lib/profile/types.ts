@@ -30,6 +30,8 @@ export type KudosWithUsers = {
   id: string;
   sender: KudosUser;
   receiver: KudosUser;
+  /** "Danh hiệu" title shown as the kudos heading. */
+  title: string;
   message: string;
   images: string[];
   hashtags: string[];

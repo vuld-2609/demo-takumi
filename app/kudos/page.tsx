@@ -14,6 +14,7 @@ import {
   getSidebarStats,
   getLeaderboards,
   getReceiverOptions,
+  getHashtagSuggestions,
   getSpotlightData,
 } from "@/lib/kudos/queries";
 import { PLACEHOLDER_BOX_STATS, type ProfileStats } from "@/lib/profile/types";
@@ -52,13 +53,14 @@ export default async function KudosPage({
 
   const viewerId = await getViewerProfileId(user.id);
 
-  const [all, hashtagOptions, departmentOptions, leaderboards, receivers, stats, spotlight] =
+  const [all, hashtagOptions, departmentOptions, leaderboards, receivers, hashtagSuggestions, stats, spotlight] =
     await Promise.all([
       getFilteredKudos(viewerId, filters),
       getHashtagOptions(),
       getDepartmentOptions(),
       getLeaderboards(),
       getReceiverOptions(),
+      getHashtagSuggestions(),
       viewerId ? getSidebarStats(viewerId) : Promise.resolve(EMPTY_STATS),
       getSpotlightData(),
     ]);
@@ -84,7 +86,7 @@ export default async function KudosPage({
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Suspense boundary required for useSearchParams() in HighlightSection. */}
         <Suspense fallback={null}>
-          <KudosBoard data={data} receivers={receivers} />
+          <KudosBoard data={data} receivers={receivers} hashtagSuggestions={hashtagSuggestions} />
         </Suspense>
       </div>
 

@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProfileByAuthUser } from "@/lib/profile/queries";
 import { PLACEHOLDER_BOX_STATS, type ProfileStats } from "@/lib/profile/types";
-import type {
-  BoardKudos,
-  FilterOption,
-  HoverCardData,
-  KudosBoardUser,
-  LeaderboardEntry,
+import {
+  CURATED_HASHTAGS,
+  type BoardKudos,
+  type FilterOption,
+  type HoverCardData,
+  type KudosBoardUser,
+  type LeaderboardEntry,
+  type MentionableUser,
 } from "./types";
 
 const FALLBACK_AVATAR = "/profile/kudos-avatar-1.png";
@@ -53,7 +55,7 @@ export async function getFilteredKudos(
   let query = supabase
     .from("kudos")
     .select(
-      `id, message, images, hashtags, category, is_spam, created_at, sender_id, receiver_id,
+      `id, title, message, images, hashtags, category, is_spam, is_anonymous, anonymous_name, created_at, sender_id, receiver_id,
        sender:profiles!kudos_sender_id_fkey!inner(id, display_name, avatar_url, rank, department, hero_badge),
        receiver:profiles!kudos_receiver_id_fkey!inner(id, display_name, avatar_url, rank, department, hero_badge),
        kudos_hearts(count)`,
@@ -81,13 +83,28 @@ export async function getFilteredKudos(
 
   return data.map((row): BoardKudos => {
     const heartAgg = row.kudos_hearts as unknown as { count: number | string }[] | null;
+    const isAnonymous = Boolean(row.is_anonymous);
+    // When anonymous, never leak the real sender to the client; show the chosen
+    // alias (or a generic label) with no identifying rank/department/badge.
+    const sender = isAnonymous
+      ? toUser({
+          id: "",
+          display_name: row.anonymous_name || "Người ẩn danh",
+          avatar_url: null,
+          rank: null,
+          department: null,
+          hero_badge: null,
+        })
+      : toUser(row.sender as unknown as EmbeddedUser | null);
     return {
       id: row.id,
-      sender: toUser(row.sender as unknown as EmbeddedUser | null),
+      sender,
       receiver: toUser(row.receiver as unknown as EmbeddedUser | null),
+      title: row.title ?? "",
       message: row.message ?? "",
       images: row.images ?? [],
       hashtags: row.hashtags ?? [],
+      isAnonymous,
       category: row.category ?? null,
       heartCount: Number(heartAgg?.[0]?.count ?? 0),
       likedByMe: likedIds.has(row.id),
@@ -192,17 +209,38 @@ export async function getSpotlightData(): Promise<{ total: number; names: string
   return { total: totalRes.count ?? 0, names };
 }
 
-/** All profiles as compose-dialog receiver options (id + display name). */
-export async function getReceiverOptions(): Promise<{ id: string; displayName: string }[]> {
+/** All profiles as compose-dialog receiver options / @mention targets
+ * (id + name + avatar + rank — avatar/rank shown in the recipient dropdown). */
+export async function getReceiverOptions(): Promise<MentionableUser[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id, display_name")
+    .select("id, display_name, avatar_url, rank")
     .order("display_name", { ascending: true });
   return (data ?? []).map((r) => ({
     id: r.id as string,
     displayName: (r.display_name as string) ?? "Sunner",
+    avatarUrl: (r.avatar_url as string) || FALLBACK_AVATAR,
+    rank: (r.rank as string) ?? "",
   }));
+}
+
+/**
+ * Hashtag suggestions for the compose "+ Hashtag" dropdown: the curated list
+ * unioned with hashtags already used on the board, de-duped (case-insensitive).
+ */
+export async function getHashtagSuggestions(): Promise<string[]> {
+  const existing = await getHashtagOptions();
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const tag of [...CURATED_HASHTAGS, ...existing.map((o) => o.value)]) {
+    const key = tag.toLowerCase();
+    if (tag && !seen.has(key)) {
+      seen.add(key);
+      out.push(tag);
+    }
+  }
+  return out;
 }
 
 /** Avatar hover-card data for one profile (name, unit, badge, kudos counts). */

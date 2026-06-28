@@ -17,6 +17,7 @@ import HeroBadgeTooltip from "./hero-badge-tooltip";
 import AvatarHoverCard from "./avatar-hover-card";
 import LikeButton from "./like-button";
 import CopyLinkButton from "./copy-link-button";
+import KudoMessageBox from "./kudo-message-box";
 
 interface HighlightCardProps {
   kudos: BoardKudos;
@@ -41,16 +42,24 @@ function CardUser({
   user: BoardKudos["sender"];
   onSendKudo: (id: string) => void;
 }) {
+  // Anonymous senders are masked in queries.ts (empty id) — render non-interactive.
+  const avatar = (
+    <div
+      className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
+      style={{ border: "2px solid #998C5F" }}
+    >
+      <Image src={user.avatarUrl} alt={user.displayName} fill sizes="64px" className="object-cover" />
+    </div>
+  );
   return (
     <div className="flex min-w-0 flex-col items-center gap-1.5 text-center">
-      <AvatarHoverCard data={toHoverData(user)} onSendKudo={onSendKudo}>
-        <div
-          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
-          style={{ border: "2px solid #998C5F" }}
-        >
-          <Image src={user.avatarUrl} alt={user.displayName} fill sizes="64px" className="object-cover" />
-        </div>
-      </AvatarHoverCard>
+      {user.id ? (
+        <AvatarHoverCard data={toHoverData(user)} onSendKudo={onSendKudo}>
+          {avatar}
+        </AvatarHoverCard>
+      ) : (
+        avatar
+      )}
       <span className="max-w-[150px] truncate text-sm font-bold leading-tight text-[#1A1A1A]">
         {user.displayName}
       </span>
@@ -108,15 +117,8 @@ export default function HighlightCard({ kudos, onSendKudo }: HighlightCardProps)
         </p>
       )}
 
-      {/* Message — nested box, content height (~3 lines) */}
-      <div
-        className="rounded-xl px-4 py-3"
-        style={{ backgroundColor: "#FFFDF5", border: "1px solid #EFE3BE" }}
-      >
-        <p className="m-0 line-clamp-3 text-sm font-semibold leading-6 text-[#1A1A1A]">
-          {kudos.message}
-        </p>
-      </div>
+      {/* Title (Danh hiệu) + rich-text message — nested box, ~3 lines */}
+      <KudoMessageBox title={kudos.title} messageHtml={kudos.message} clampClass="line-clamp-3" pad="sm" />
 
       {/* Hashtags */}
       {kudos.hashtags.length > 0 && (

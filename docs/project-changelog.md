@@ -13,6 +13,16 @@
   - Files: `app/kudos/` (page + components); data layer `lib/kudos/{types,queries}.ts`; server actions `app/actions/kudos.ts` (`toggleHeart`, `createKudos`, `loadHoverCard`).
   - **i18n** — `kudos.*` namespace added to `messages/vi.json` and `messages/en.json`.
 
+- **"Viết Kudo" compose modal redesign** — full rebuild of the kudos compose flow to the MoMorph light/cream design.
+  - Recipient autocomplete (search by name).
+  - Required "Danh hiệu" (title) text field.
+  - Rich-text editor: Bold / Italic / Strikethrough / ordered + unordered lists / link / blockquote; @mention and hashtag support.
+  - Hashtag chips: 1–5 tags, predefined set + free-form input.
+  - Image upload: up to 5 images (jpg/png, 5 MB each) stored in Supabase Storage bucket `kudos-images` (public, uploader-scoped insert policy).
+  - Anonymous send with optional custom display name; real sender identity never serialized to client (`lib/kudos/queries.ts` masks anonymous senders).
+  - XSS protection: `lib/kudos/sanitize-html.ts` dependency-free allowlist sanitizer; output re-sanitized on render via `dangerouslySetInnerHTML`.
+  - `next.config.ts` — Supabase Storage hostname added to `next/image` `remotePatterns`.
+
 #### Changed
 - **`lib/profile/types.ts` `HeroBadge`** — widened from 2 tiers to 4: `new_hero | rising_hero | super_hero | legend_hero`.
 
@@ -23,6 +33,9 @@
   - GIN index `kudos_hashtags_idx` on `kudos.hashtags` (array column).
   - B-tree index `profiles_department_idx` on `profiles.department`.
 - **`supabase/seed.sql`** extended with demo profiles across multiple departments and board-level kudos/hearts.
+- **Migration `supabase/migrations/0003_kudos_compose_fields.sql`**:
+  - `kudos` table: added `title` (text), `is_anonymous` (boolean), `anonymous_name` (text); `message` column now stores sanitized rich-text HTML.
+  - New Supabase Storage bucket `kudos-images` (public) with INSERT policy restricting uploads to the uploader's own profile-id folder.
 
 ### 2026-06-27
 
