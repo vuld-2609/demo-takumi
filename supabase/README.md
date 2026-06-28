@@ -13,7 +13,8 @@ There is no service key / DB connection in the repo, so **you must apply the SQL
 ## Apply (Supabase Dashboard)
 1. Open your project → **SQL Editor** → **New query**.
 2. Paste the contents of `migrations/0001_profiles_kudos.sql`, **Run**.
-3. (Optional, for demo data) paste `seed.sql`, **Run**.
+3. Paste the contents of `migrations/0002_kudos_board.sql`, **Run**. *(Must follow 0001; idempotent / safe to re-run.)*
+4. (Optional, for demo data) paste `seed.sql`, **Run**.
 
 Or with the Supabase CLI: `supabase db push` (migrations) then run `seed.sql`.
 
@@ -36,9 +37,21 @@ update public.profiles set auth_user_id = '<YOUR_AUTH_UID>'
 
 Reload `/profile` — you'll see 2 received + 2 sent kudos with hearts.
 
+## Migration 0002 — Kudos Live Board (`/kudos`)
+
+Extends 0001 for the live board. Must be applied **after** 0001. Idempotent / safe to re-run.
+
+| Change | Detail |
+|---|---|
+| `profiles_hero_badge_check` widened | Allows all 4 tiers: `new_hero`, `rising_hero`, `super_hero`, `legend_hero` (0001 only allowed `super_hero` / `legend_hero`). |
+| `kudos_insert_own` RLS policy | INSERT on `kudos` only allowed when `sender_id` maps to the caller's own profile (`auth_user_id = auth.uid()`). Required by the compose flow. |
+| `kudos_hashtags_idx` | GIN index on `kudos.hashtags` (array column). Speeds up hashtag filter on the board. |
+| `profiles_department_idx` | B-tree index on `profiles.department`. Speeds up Phòng ban filter. |
+
 ## Notes
 - The profile page renders correctly **before** you apply this (empty/zero states); applying it
   just populates real data.
 - Secret-box counts, the icon collection and badges are visual placeholders — no tables for them.
 - RLS: profiles/kudos/hearts are readable by any authenticated user; you can only update your own
   profile and add/remove your own hearts.
+- The `/kudos` board leaderboards use seeded demo data — no rank-up / gift event tables exist yet.

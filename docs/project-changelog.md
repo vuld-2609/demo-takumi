@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+### 2026-06-28
+
+#### Added
+- **Sun* Kudos Live Board** (`/kudos` — auth-gated, redirects to `/login`). Built from MoMorph design.
+  - Sections: keyvisual banner + compose input pill; HIGHLIGHT KUDOS carousel (top-5 by hearts, center-focus with 2 flanking blurred cards); ALL KUDOS feed; right sidebar (viewer stats, two seeded leaderboards, placeholder Secret Box).
+  - Filters: Hashtag + Phòng ban single-select dropdowns on the carousel; filter state propagated via URL `searchParams` and affects both sections.
+  - Interactions: hover-avatar popover (name / unit / badge / kudos counts / Gửi KUDO button); 4-tier hero-badge hover tooltips + x2 campaign static chip; like toggle (optimistic UI, persisted, sender cannot like own kudos, one heart per user per kudos); copy-link toast; functional compose dialog (creates a real kudos row via server action).
+  - **Out of scope (not yet built):** spotlight word-cloud; kudos detail page navigation; Secret Box backend; rank-up/gift event tables (leaderboard data is seeded); x2 campaign chip is static.
+  - Files: `app/kudos/` (page + components); data layer `lib/kudos/{types,queries}.ts`; server actions `app/actions/kudos.ts` (`toggleHeart`, `createKudos`, `loadHoverCard`).
+  - **i18n** — `kudos.*` namespace added to `messages/vi.json` and `messages/en.json`.
+
+#### Changed
+- **`lib/profile/types.ts` `HeroBadge`** — widened from 2 tiers to 4: `new_hero | rising_hero | super_hero | legend_hero`.
+
+#### Database
+- **Migration `supabase/migrations/0002_kudos_board.sql`** (apply after 0001):
+  - `profiles_hero_badge_check` constraint widened to all 4 badge tiers.
+  - New `kudos_insert_own` RLS policy: authenticated users may INSERT a kudos only when `sender_id` maps to their own profile (`auth_user_id = auth.uid()`).
+  - GIN index `kudos_hashtags_idx` on `kudos.hashtags` (array column).
+  - B-tree index `profiles_department_idx` on `profiles.department`.
+- **`supabase/seed.sql`** extended with demo profiles across multiple departments and board-level kudos/hearts.
+
 ### 2026-06-27
 
 #### Added

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import FooterNav from "./footer-nav";
 
 /**
  * Site footer (spec 7): logo + navigation links (left) and copyright (right).
@@ -23,17 +24,7 @@ export default function SiteFooter() {
         <Link href="/" aria-label="Sun* Annual Awards home">
           <Image src="/login/saa-logo.png" alt="SAA 2025 Logo" width={69} height={64} />
         </Link>
-        <nav className="flex flex-wrap items-center justify-center gap-x-12 gap-y-3">
-          {links.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-sm font-bold text-white transition-colors hover:text-[#FFEA9E]"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <FooterNav links={links} />
       </div>
 
       <p className="m-0 text-base font-bold text-white">{t("footer.copyright")}</p>
