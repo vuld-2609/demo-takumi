@@ -14,16 +14,32 @@ import HighlightSection from "./highlight-section";
 import SpotlightBoard from "./spotlight-board";
 import AllKudosFeed from "./all-kudos-feed";
 import KudosSidebar from "./kudos-sidebar";
-import ComposeDialog from "./compose-dialog";
+import ComposeDialog, { type KudosSubmitPayload } from "./compose-dialog";
+import { createKudos } from "@/app/actions/kudos";
 
 type Receiver = { id: string; displayName: string };
 
 interface KudosBoardProps {
   data: BoardData;
   receivers: Receiver[];
+  hashtagSuggestions: string[];
 }
 
-export default function KudosBoard({ data, receivers }: KudosBoardProps) {
+/** Adapt the modal payload to the createKudos server action. */
+async function submitKudos(p: KudosSubmitPayload): Promise<{ ok: boolean }> {
+  const result = await createKudos({
+    receiverId: p.receiverId,
+    title: p.title,
+    message: p.messageHtml,
+    hashtags: p.hashtags,
+    images: p.images,
+    isAnonymous: p.isAnonymous,
+    anonymousName: p.anonymousName,
+  });
+  return { ok: result.ok };
+}
+
+export default function KudosBoard({ data, receivers, hashtagSuggestions }: KudosBoardProps) {
   const tk = useTranslations("kudos");
   const [composeOpen, setComposeOpen] = useState(false);
   const [receiver, setReceiver] = useState<Receiver | undefined>(undefined);
@@ -91,6 +107,9 @@ export default function KudosBoard({ data, receivers }: KudosBoardProps) {
         onClose={() => setComposeOpen(false)}
         receiver={receiver}
         receivers={receivers}
+        mentionableUsers={receivers}
+        hashtagSuggestions={hashtagSuggestions}
+        onSubmit={submitKudos}
       />
     </>
   );

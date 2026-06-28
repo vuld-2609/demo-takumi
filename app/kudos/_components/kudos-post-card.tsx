@@ -17,6 +17,7 @@ import HeroBadgeTooltip from "./hero-badge-tooltip";
 import AvatarHoverCard from "./avatar-hover-card";
 import LikeButton from "./like-button";
 import CopyLinkButton from "./copy-link-button";
+import KudoMessageBox from "./kudo-message-box";
 
 interface KudosPostCardProps {
   kudos: BoardKudos;
@@ -41,16 +42,24 @@ function CardUser({
   user: BoardKudos["sender"];
   onSendKudo: (id: string) => void;
 }) {
+  // Anonymous senders are masked in queries.ts (empty id) — render non-interactive.
+  const avatar = (
+    <div
+      className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
+      style={{ border: "2px solid #998C5F" }}
+    >
+      <Image src={user.avatarUrl} alt={user.displayName} fill sizes="64px" className="object-cover" />
+    </div>
+  );
   return (
     <div className="flex min-w-0 flex-col items-center gap-1.5 text-center">
-      <AvatarHoverCard data={toHoverData(user)} onSendKudo={onSendKudo}>
-        <div
-          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
-          style={{ border: "2px solid #998C5F" }}
-        >
-          <Image src={user.avatarUrl} alt={user.displayName} fill sizes="64px" className="object-cover" />
-        </div>
-      </AvatarHoverCard>
+      {user.id ? (
+        <AvatarHoverCard data={toHoverData(user)} onSendKudo={onSendKudo}>
+          {avatar}
+        </AvatarHoverCard>
+      ) : (
+        avatar
+      )}
       <span className="max-w-[160px] truncate text-sm font-bold leading-tight text-[#1A1A1A]">
         {user.displayName}
       </span>
@@ -103,15 +112,8 @@ export default function KudosPostCard({ kudos, onSendKudo }: KudosPostCardProps)
         </p>
       )}
 
-      {/* Message — nested box */}
-      <div
-        className="rounded-xl px-5 py-4"
-        style={{ backgroundColor: "#FFFDF5", border: "1px solid #EFE3BE" }}
-      >
-        <p className="m-0 line-clamp-5 text-sm font-semibold leading-6 text-[#1A1A1A]">
-          {kudos.message}
-        </p>
-      </div>
+      {/* Title (Danh hiệu) + rich-text message — nested box */}
+      <KudoMessageBox title={kudos.title} messageHtml={kudos.message} clampClass="line-clamp-5" pad="md" />
 
       {/* Image gallery — max 5 × 88px thumbnails */}
       {kudos.images.length > 0 && (

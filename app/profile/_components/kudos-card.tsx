@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { KudosUser, KudosWithUsers } from "@/lib/profile/types";
 import HeroBadge from "./hero-badge";
 import { HeartIcon, CopyLinkIcon, PlayIcon } from "@/app/_components/home/icons";
+import { sanitizeKudoHtml } from "@/lib/kudos/sanitize-html";
 
 /** Format number with dot thousands separator (Vietnamese style): 1000 → "1.000" */
 function formatCount(n: number): string {
@@ -94,10 +95,18 @@ export default function KudosCard({ kudos }: { kudos: KudosWithUsers }) {
       {/* Timestamp */}
       <p className="m-0 text-xs text-[#998C5F]">{kudos.createdAt}</p>
 
-      {/* Message */}
-      <p className="m-0 line-clamp-4 text-sm leading-6 text-[#1A1A1A]">
-        {kudos.message}
-      </p>
+      {/* Title (Danh hiệu) */}
+      {kudos.title && (
+        <p className="m-0 text-sm font-bold uppercase tracking-wide text-[#1A1A1A]">
+          {kudos.title}
+        </p>
+      )}
+
+      {/* Message — sanitized rich-text (bold/italic/lists/link/quote/@mention) */}
+      <div
+        className="kudo-rich m-0 line-clamp-4 text-sm leading-6 text-[#1A1A1A]"
+        dangerouslySetInnerHTML={{ __html: sanitizeKudoHtml(kudos.message) }}
+      />
 
       {/* Image grid — up to 5 thumbnails, 88px square */}
       {kudos.images.length > 0 && (

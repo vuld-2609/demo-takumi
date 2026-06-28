@@ -31,6 +31,37 @@ body {
   }
 }
 
+/* kudo-rich — styling for sanitized rich-text rendered on board cards
+   (bold/italic/strike/links/ordered+unordered lists/blockquote). */
+.kudo-rich a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.kudo-rich ol,
+.kudo-rich ul {
+  margin: 0.25rem 0;
+  padding-left: 1.25rem;
+}
+.kudo-rich ol {
+  list-style: decimal;
+}
+.kudo-rich ul {
+  list-style: disc;
+}
+.kudo-rich blockquote {
+  margin: 0.25rem 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid #998c5f;
+  color: #1a1a1a;
+  font-style: italic;
+}
+/* @mention chips — used in the editor and on rendered cards (.mention class). */
+.kudo-rich .mention,
+.mention {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
 /* DSEG7-Classic — open-source LED/7-segment font for the countdown digits */
 @font-face {
   font-family: "DSEG7 Classic";

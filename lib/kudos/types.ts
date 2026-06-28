@@ -17,14 +17,22 @@ export type KudosBoardUser = {
   heroBadge: HeroBadge;
 };
 
+/** Sunner option for the recipient autocomplete and the @mention popup. */
+export type MentionableUser = { id: string; displayName: string };
+
 /** One kudos post on the board, with viewer-relative like state. */
 export type BoardKudos = {
   id: string;
   sender: KudosBoardUser;
   receiver: KudosBoardUser;
+  /** "Danh hiệu" — title/badge given to the receiver, shown as the kudos heading. */
+  title: string;
+  /** Sanitized rich-text HTML body (bold/italic/lists/link/quote/@mention). */
   message: string;
   images: string[];
   hashtags: string[];
+  /** True when sent anonymously — `sender` is already masked in queries.ts. */
+  isAnonymous: boolean;
   category: string | null;
   heartCount: number;
   /** Whether the current viewer has hearted this kudos. */
@@ -39,6 +47,28 @@ export type BoardKudos = {
 
 /** A single-select dropdown option (Hashtag / Phòng ban). */
 export type FilterOption = { value: string; label: string };
+
+/** Curated hashtag suggestions for the compose "+ Hashtag" dropdown.
+ * Merged with the distinct hashtags already used on the board (see queries.ts). */
+export const CURATED_HASHTAGS = [
+  "TeamWork",
+  "Helpful",
+  "GoExtra",
+  "Reliable",
+  "Innovative",
+  "Leadership",
+  "Ownership",
+  "Mentor",
+] as const;
+
+/** Max images / hashtags a single kudos may carry (enforced in UI + server action). */
+export const MAX_KUDO_IMAGES = 5;
+export const MAX_KUDO_HASHTAGS = 5;
+/** Per-image upload ceiling (5 MB) — enforced client-side and in the server action. */
+export const MAX_KUDO_IMAGE_BYTES = 5 * 1024 * 1024;
+/** Length caps for free-text fields (defensive — avoid unbounded payloads). */
+export const MAX_KUDO_TITLE_LENGTH = 200;
+export const MAX_HASHTAG_LENGTH = 50;
 
 /** A row in a sidebar leaderboard. */
 export type LeaderboardEntry = {

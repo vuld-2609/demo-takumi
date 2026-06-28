@@ -90,7 +90,7 @@ export async function getKudosFeed(
   const { data, error } = await supabase
     .from("kudos")
     .select(
-      `id, message, images, hashtags, category, is_spam, created_at,
+      `id, title, message, images, hashtags, category, is_spam, created_at,
        sender:profiles!kudos_sender_id_fkey(display_name, avatar_url, rank, hero_badge),
        receiver:profiles!kudos_receiver_id_fkey(display_name, avatar_url, rank, hero_badge),
        kudos_hearts(count)`,
@@ -110,6 +110,7 @@ export async function getKudosFeed(
       id: row.id,
       sender: toUser(row.sender as unknown as EmbeddedUser | null),
       receiver: toUser(row.receiver as unknown as EmbeddedUser | null),
+      title: row.title ?? "",
       message: row.message ?? "",
       images: row.images ?? [],
       hashtags: row.hashtags ?? [],
